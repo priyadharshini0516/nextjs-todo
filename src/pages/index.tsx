@@ -15,15 +15,11 @@ export default function Home() {
   const [editDueDate, setEditDueDate] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
 
-  // Load tasks from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("tasks");
-    if (saved) {
-      setTasks(JSON.parse(saved));
-    }
+    if (saved) setTasks(JSON.parse(saved));
   }, []);
 
-  // Save tasks to localStorage
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
@@ -36,15 +32,15 @@ export default function Home() {
   };
 
   const toggleDone = (index: number) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].done = !updatedTasks[index].done;
-    setTasks(updatedTasks);
+    const updated = [...tasks];
+    updated[index].done = !updated[index].done;
+    setTasks(updated);
   };
 
   const removeTask = (index: number) => {
-    const newTasks = [...tasks];
-    newTasks.splice(index, 1);
-    setTasks(newTasks);
+    const updated = [...tasks];
+    updated.splice(index, 1);
+    setTasks(updated);
   };
 
   const startEdit = (index: number) => {
@@ -61,49 +57,49 @@ export default function Home() {
 
   const saveEdit = (index: number) => {
     if (editText.trim() === "") return;
-    const updatedTasks = [...tasks];
-    updatedTasks[index] = { ...updatedTasks[index], text: editText, dueDate: editDueDate };
-    setTasks(updatedTasks);
+    const updated = [...tasks];
+    updated[index] = { ...updated[index], text: editText, dueDate: editDueDate };
+    setTasks(updated);
     cancelEdit();
   };
 
-  // Filter tasks based on filter state
-  const filteredTasks = tasks.filter((t) => {
-    if (filter === "active") return !t.done;
-    if (filter === "completed") return t.done;
-    return true; // all
-  });
+  const filteredTasks = tasks.filter((t) =>
+    filter === "active" ? !t.done : filter === "completed" ? t.done : true
+  );
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 flex items-center justify-center p-4">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">📝 Priya's To-Do</h1>
-        <p className="text-center text-gray-500 mb-6">Stay productive!</p>
+      <div className="bg-white shadow-2xl rounded-2xl p-6 sm:p-8 max-w-md w-full space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-center text-gray-800">📝 Priya's To-Do</h1>
+          <p className="text-center text-gray-500">Stay productive!</p>
+        </div>
 
-        <div className="flex gap-2 mb-6">
+        {/* Input Section */}
+        <div className="space-y-2">
           <input
             type="text"
             value={task}
             onChange={(e) => setTask(e.target.value)}
             placeholder="Enter a task..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
           <input
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
           <button
             onClick={addTask}
-            className="px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition"
+            className="w-full px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition"
           >
-            Add
+            Add Task
           </button>
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex justify-center gap-4 mb-4">
+        <div className="flex justify-center gap-4">
           {["all", "active", "completed"].map((f) => (
             <button
               key={f}
@@ -119,15 +115,13 @@ export default function Home() {
           ))}
         </div>
 
+        {/* Task List */}
         {filteredTasks.length === 0 ? (
           <p className="text-center text-gray-400">No tasks to show.</p>
         ) : (
           <ul className="space-y-3">
             {filteredTasks.map((t, i) => {
-              // Because filteredTasks is a filtered array, index i may not match tasks index
-              // So find the real index in tasks array
               const realIndex = tasks.indexOf(t);
-
               return (
                 <li
                   key={realIndex}
@@ -214,7 +208,8 @@ export default function Home() {
           </ul>
         )}
 
-        <footer className="mt-6 text-center text-sm text-gray-400">
+        {/* Footer */}
+        <footer className="text-center text-sm text-gray-400">
           © 2025 Priya Dharshini. All rights reserved.
         </footer>
       </div>
