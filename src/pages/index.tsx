@@ -13,6 +13,7 @@ export default function Home() {
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [editDueDate, setEditDueDate] = useState("");
+  const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
 
   // Load tasks from localStorage
   useEffect(() => {
@@ -66,6 +67,13 @@ export default function Home() {
     cancelEdit();
   };
 
+  // Filter tasks based on filter state
+  const filteredTasks = tasks.filter((t) => {
+    if (filter === "active") return !t.done;
+    if (filter === "completed") return t.done;
+    return true; // all
+  });
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 flex items-center justify-center p-4">
       <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full">
@@ -94,86 +102,115 @@ export default function Home() {
           </button>
         </div>
 
-        {tasks.length === 0 ? (
-          <p className="text-center text-gray-400">No tasks added yet.</p>
+        {/* Filter Buttons */}
+        <div className="flex justify-center gap-4 mb-4">
+          {["all", "active", "completed"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f as typeof filter)}
+              className={`px-3 py-1 rounded-full font-semibold ${
+                filter === f
+                  ? "bg-purple-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-purple-300"
+              } transition`}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {filteredTasks.length === 0 ? (
+          <p className="text-center text-gray-400">No tasks to show.</p>
         ) : (
           <ul className="space-y-3">
-            {tasks.map((t, i) => (
-              <li
-                key={i}
-                className="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-lg"
-              >
-                <div className="flex items-center gap-3 flex-1">
-                  <input
-                    type="checkbox"
-                    checked={t.done}
-                    onChange={() => toggleDone(i)}
-                    className="w-4 h-4 accent-purple-600"
-                  />
-                  {editIndex === i ? (
-                    <div className="flex flex-col w-full">
-                      <input
-                        type="text"
-                        value={editText}
-                        onChange={(e) => setEditText(e.target.value)}
-                        className="px-2 py-1 border border-gray-300 rounded mb-1"
-                      />
-                      <input
-                        type="date"
-                        value={editDueDate}
-                        onChange={(e) => setEditDueDate(e.target.value)}
-                        className="px-2 py-1 border border-gray-300 rounded"
-                      />
-                    </div>
-                  ) : (
-                    <div>
-                      <span className={t.done ? "line-through text-gray-400 font-medium" : "font-medium"}>
-                        {t.text}
-                      </span>
-                      {t.dueDate && (
-                        <p className="text-xs text-gray-500">
-                          Due: {new Date(t.dueDate).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
+            {filteredTasks.map((t, i) => {
+              // Because filteredTasks is a filtered array, index i may not match tasks index
+              // So find the real index in tasks array
+              const realIndex = tasks.indexOf(t);
 
-                <div className="flex gap-2">
-                  {editIndex === i ? (
-                    <>
-                      <button
-                        onClick={() => saveEdit(i)}
-                        className="text-green-600 hover:text-green-800 font-semibold"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={cancelEdit}
-                        className="text-gray-600 hover:text-gray-800 font-semibold"
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => startEdit(i)}
-                        className="text-blue-600 hover:text-blue-800 font-semibold"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => removeTask(i)}
-                        className="text-red-500 hover:text-red-700 font-bold"
-                      >
-                        ✕
-                      </button>
-                    </>
-                  )}
-                </div>
-              </li>
-            ))}
+              return (
+                <li
+                  key={realIndex}
+                  className="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-lg"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <input
+                      type="checkbox"
+                      checked={t.done}
+                      onChange={() => toggleDone(realIndex)}
+                      className="w-4 h-4 accent-purple-600"
+                    />
+                    {editIndex === realIndex ? (
+                      <div className="flex flex-col w-full">
+                        <input
+                          type="text"
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                          className="px-2 py-1 border border-gray-300 rounded mb-1"
+                        />
+                        <input
+                          type="date"
+                          value={editDueDate}
+                          onChange={(e) => setEditDueDate(e.target.value)}
+                          className="px-2 py-1 border border-gray-300 rounded"
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <span
+                          className={
+                            t.done
+                              ? "line-through text-gray-400 font-medium"
+                              : "font-medium"
+                          }
+                        >
+                          {t.text}
+                        </span>
+                        {t.dueDate && (
+                          <p className="text-xs text-gray-500">
+                            Due: {new Date(t.dueDate).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    {editIndex === realIndex ? (
+                      <>
+                        <button
+                          onClick={() => saveEdit(realIndex)}
+                          className="text-green-600 hover:text-green-800 font-semibold"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="text-gray-600 hover:text-gray-800 font-semibold"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => startEdit(realIndex)}
+                          className="text-blue-600 hover:text-blue-800 font-semibold"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => removeTask(realIndex)}
+                          className="text-red-500 hover:text-red-700 font-bold"
+                        >
+                          ✕
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
 
