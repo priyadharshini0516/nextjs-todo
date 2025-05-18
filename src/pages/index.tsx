@@ -1,9 +1,21 @@
-// src/pages/index.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState<string[]>([]);
+
+  // 🧠 Load tasks from localStorage on first render
+  useEffect(() => {
+    const saved = localStorage.getItem("tasks");
+    if (saved) {
+      setTasks(JSON.parse(saved));
+    }
+  }, []);
+
+  // 💾 Save tasks to localStorage whenever tasks change
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = () => {
     if (task.trim() === "") return;
