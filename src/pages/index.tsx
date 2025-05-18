@@ -123,55 +123,23 @@ export default function Home() {
             {filteredTasks.map((t, i) => {
               const realIndex = tasks.indexOf(t);
               return (
-                <li
-                  key={realIndex}
-                  className="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-lg"
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <input
-                      type="checkbox"
-                      checked={t.done}
-                      onChange={() => toggleDone(realIndex)}
-                      className="w-4 h-4 accent-purple-600"
-                    />
-                    {editIndex === realIndex ? (
-                      <div className="flex flex-col w-full">
-                        <input
-                          type="text"
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          className="px-2 py-1 border border-gray-300 rounded mb-1"
-                        />
-                        <input
-                          type="date"
-                          value={editDueDate}
-                          onChange={(e) => setEditDueDate(e.target.value)}
-                          className="px-2 py-1 border border-gray-300 rounded"
-                        />
-                      </div>
-                    ) : (
-                      <div>
-                        <span
-                          className={
-                            t.done
-                              ? "line-through text-gray-400 font-medium"
-                              : "font-medium"
-                          }
-                        >
-                          {t.text}
-                        </span>
-                        {t.dueDate && (
-                          <p className="text-xs text-gray-500">
-                            Due: {new Date(t.dueDate).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    {editIndex === realIndex ? (
-                      <>
+                <li key={realIndex} className="bg-gray-100 p-3 rounded-lg">
+                  {editIndex === realIndex ? (
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="text"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        className="px-2 py-1 border border-gray-300 rounded"
+                        placeholder="Edit task"
+                      />
+                      <input
+                        type="date"
+                        value={editDueDate}
+                        onChange={(e) => setEditDueDate(e.target.value)}
+                        className="px-2 py-1 border border-gray-300 rounded"
+                      />
+                      <div className="flex gap-4 justify-end">
                         <button
                           onClick={() => saveEdit(realIndex)}
                           className="text-green-600 hover:text-green-800 font-semibold"
@@ -184,9 +152,29 @@ export default function Home() {
                         >
                           Cancel
                         </button>
-                      </>
-                    ) : (
-                      <>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={t.done}
+                          onChange={() => toggleDone(realIndex)}
+                          className="mt-1 accent-purple-600"
+                        />
+                        <div>
+                          <p className={t.done ? "line-through text-gray-400 font-medium" : "font-medium"}>
+                            {t.text}
+                          </p>
+                          {t.dueDate && (
+                            <p className="text-xs text-gray-500">
+                              Due: {new Date(t.dueDate).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
                         <button
                           onClick={() => startEdit(realIndex)}
                           className="text-blue-600 hover:text-blue-800 font-semibold"
@@ -199,9 +187,9 @@ export default function Home() {
                         >
                           ✕
                         </button>
-                      </>
-                    )}
-                  </div>
+                      </div>
+                    </div>
+                  )}
                 </li>
               );
             })}
